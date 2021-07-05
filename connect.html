@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html>
+  <head>
+    <script type="text/javascript" src="connect-streams-min.js"></script>
+    <script type="text/javascript" src="amazon-connect-1.7.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.893.0.min.js"></script>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+/* Create three equal columns that floats next to each other */
+.ccpcontainer {
+  float: left;
+  width:400px; 
+  height:800px;
+  padding: 10px;
+}
+.customerprofiles {
+  float: left;
+  width:500px; 
+  height:800px;
+  padding: 10px;
+}
+.selfServiceCCP {
+  float: left;
+  width:600px; 
+  height:400px;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style>
+
+  </head>
+  <!-- Add the call to init() as an onload so it will only run once the page is loaded -->
+  <body onload="init()">
+  
+
+<div class="row">
+  <div id="ccp-container" class="ccpcontainer" style="background-color:#aaa;">
+  </div>
+  <div id="customerprofiles-container" class="customerprofiles" style="background-color:#bbb;">
+  </div>
+</div>
+
+    <script type="text/javascript">
+      function init() {
+        const connectUrl = "https://connectAliasId.awsapps.com/connect";
+        connect.agentApp.initApp(
+            "ccp", 
+            "ccp-container", 
+            connectUrl + "/ccp-v2/"
+        );
+        connect.agentApp.initApp(
+            "customerprofiles", 
+            "customerprofiles-container", 
+            connectUrl + "/customerprofiles/"
+			
+        );
+			
+        connect.contact(function (contact) {
+            c = contact;
+            window.contact = c;
+            try {
+                  AWS.config.credentials.get(function (err) {
+                    if (err)
+                      console.log(err);
+                    else {
+                      credentials = AWS.config.credentials;
+                      if (!isChat) {
+                        console.log("kicking off websocket test");
+                        WebSocketTest();
+                        console.log("websocket test success");
+                      }
+                    }
+                  });
+                } catch (e) {
+                  console.log(e);
+            }
+            c.onConnecting(function (c) {
+                contactID = contact.contactId;
+                previousContactId = contact.getInitialContactId();
+                var attr = c.getAttributes();
+                var c1 = c.getConnections()[1];
+                var c2 = c.getStatus();
+            });
+            c.onConnected(function (c) {
+                window.contact = c;
+                contactID = contact.contactId;
+            });
+        });
+        
+      }
+    </script>
+  </body>
+</html>
